@@ -10,6 +10,9 @@ import java.util.Optional;
 
 @Repository
 public interface JuegoRepositorio extends JpaRepository<Juego, Long> {
+    //Cuando la aplicación arranca, la interfaz es escaneada y analiza el nombre de los métodos
+    //Esto se hace con un componente llamado "Query Derivator", que analiza la frase de manera gramatical para construir una coonsulta SQL en tiempo de ejeución
+
 
     // Buscar por título exacto
     Optional<Juego> findByTitulo(String titulo);
