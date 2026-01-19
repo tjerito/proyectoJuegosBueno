@@ -66,7 +66,7 @@ public class DataLoader implements CommandLineRunner {
         // 5. Crear una Review
         Review reseña = new Review();
         reseña.setComentario("Es el mejor RPG que he jugado en mi vida.");
-        reseña.setRating(10);
+        reseña.setRating(4);
         reseña.setAutor(user);
         reseña.setJuego(witcher);
         reviewService.guardar(reseña);
