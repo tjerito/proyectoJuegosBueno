@@ -1,0 +1,28 @@
+/* Tarjetas de reseñas con efecto de elevación */
+.review-card {
+    background: #ffffff;
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    border: 1px solid #f0f0f0;
+    margin-bottom: 15px;
+    transition: all 0.3s ease;
+}
+
+.review-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+}
+
+/* Estilo para el Grid */
+.vaadin-grid {
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+/* Botones con bordes más redondeados */
+.vaadin-button {
+    border-radius: 8px;
+    font-weight: 600;
+}

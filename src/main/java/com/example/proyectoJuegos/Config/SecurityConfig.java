@@ -16,9 +16,10 @@ import org.springframework.stereotype.Component;
 @Component
 public class SecurityConfig {
 
-    private final JwtAuthenticationFilter jwtAuthFilter; // <--- ESTO ES LO QUE FALTA
+    // 1. Declaramos el filtro para que el IDE lo reconozca
+    private final JwtAuthenticationFilter jwtAuthFilter;
 
-    // Constructor para que Spring inyecte el filtro automáticamente
+    // 2. Lo inyectamos por constructor
     public SecurityConfig(JwtAuthenticationFilter jwtAuthFilter) {
         this.jwtAuthFilter = jwtAuthFilter;
     }
@@ -26,24 +27,22 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf.disable())
-                // Permitimos sesiones para que Vaadin pueda funcionar en el navegador
-                .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
+                .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        // Rutas críticas para que cargue la interfaz de Vaadin
-                        .requestMatchers("/", "/vaadinServlet/**", "/frontend/**", "/VAADIN/**").permitAll()
+                        // PERMISOS CRÍTICOS PARA VAADIN (Añade estos exactamente)
+                        .requestMatchers("/", "/index.html", "/vaadinServlet/**", "/frontend/**",
+                                "/VAADIN/**", "/webjars/**", "/favicon.ico", "/sw.js").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
-                        .anyRequest().authenticated()
-                );
-
-        // Solo añadimos el filtro JWT para las rutas que empiezan por /api/
-        http.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+                        .anyRequest().permitAll() // Cambia temporalmente a permitAll para probar que carga
+                )
+                // 3. Ya no saldrá en rojo porque jwtAuthFilter existe ahora como variable
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder(); // Para cifrar las contraseñas en la DB
+        return new BCryptPasswordEncoder();
     }
-
 }

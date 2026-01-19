@@ -3,6 +3,7 @@ package com.example.proyectoJuegos.Entities;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.Data;
+import org.hibernate.validator.constraints.URL;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -27,6 +28,10 @@ public class Juego {
     @NotNull(message = "La fecha de salida es obligatoria")
     @PastOrPresent(message = "La fecha de salida no puede ser una fecha futura")
     private LocalDate fechaSalida;
+
+    // --- NUEVO ATRIBUTO PARA LA IMAGEN ---
+    @URL(message = "Debe ser una URL válida (ej: http://... o https://...)")
+    private String urlImagen;
 
     @OneToMany(mappedBy = "game", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UserGame> lista = new ArrayList<>();

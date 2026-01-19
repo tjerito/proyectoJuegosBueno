@@ -8,7 +8,6 @@ import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.datepicker.DatePicker;
-import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
@@ -32,13 +31,18 @@ import java.util.List;
 @PageTitle("Catálogo de Juegos | Admin")
 @Route("")
 @PermitAll
-@CssImport("./styles/styles.css") // Importa tu archivo CSS
-public class MainView extends VerticalLayout { // Cambiado a VerticalLayout para mejor control de bordes
+public class MainView extends VerticalLayout {
 
     private final Grid<Juego> grid = new Grid<>(Juego.class, false);
+
+    // Formulario
     private final TextField titulo = new TextField("Título del Videojuego");
+    private final TextField urlImagen = new TextField("URL de la Portada");
     private final DatePicker fechaSalida = new DatePicker("Fecha de Lanzamiento");
     private final TextArea descripcion = new TextArea("Descripción");
+
+    // Componente de imagen grande
+    private final Image portadaDetalle = new Image("https://via.placeholder.com/400x200?text=Sin+Imagen", "Portada");
     private final VerticalLayout reviewsLayout = new VerticalLayout();
 
     private final Button cancel = new Button("Cancelar", new Icon(VaadinIcon.CLOSE));
@@ -55,7 +59,7 @@ public class MainView extends VerticalLayout { // Cambiado a VerticalLayout para
         setPadding(false);
         setSpacing(false);
 
-        // Header de la Aplicación
+        // Header
         H1 headerTitle = new H1("GameHub Manager");
         headerTitle.getStyle().set("font-size", "1.5rem").set("margin", "0 1rem");
         HorizontalLayout header = new HorizontalLayout(new Icon(VaadinIcon.GAMEPAD), headerTitle);
@@ -67,8 +71,6 @@ public class MainView extends VerticalLayout { // Cambiado a VerticalLayout para
 
         SplitLayout splitLayout = new SplitLayout();
         splitLayout.setSizeFull();
-        splitLayout.setOrientation(SplitLayout.Orientation.HORIZONTAL);
-
         splitLayout.addToPrimary(createGridLayout());
         splitLayout.addToSecondary(createEditorLayout());
 
@@ -106,8 +108,24 @@ public class MainView extends VerticalLayout { // Cambiado a VerticalLayout para
         toolbar.expand(filterText);
 
         grid.addThemeVariants(GridVariant.LUMO_NO_BORDER, GridVariant.LUMO_ROW_STRIPES);
+
+        // --- COLUMNA DE IMAGEN (MINIATURA) ---
+        grid.addComponentColumn(j -> {
+            String url = (j.getUrlImagen() == null || j.getUrlImagen().isEmpty())
+                    ? "https://via.placeholder.com/50" : j.getUrlImagen();
+            Image img = new Image(url, "Portada");
+            img.getStyle()
+                    .set("width", "45px")
+                    .set("height", "45px")
+                    .set("object-fit", "cover")
+                    .set("border-radius", "50%")
+                    .set("border", "2px solid #ddd");
+            return img;
+        }).setHeader("Vista").setWidth("70px").setFlexGrow(0);
+
         grid.addColumn(Juego::getTitulo).setHeader("Título").setSortable(true).setFlexGrow(1);
         grid.addColumn(Juego::getFechaSalida).setHeader("Fecha").setAutoWidth(true);
+
         grid.addComponentColumn(j -> {
             Span badge = new Span(String.valueOf(j.getReviews() != null ? j.getReviews().size() : 0));
             badge.getElement().getThemeList().add("badge pill");
@@ -121,38 +139,64 @@ public class MainView extends VerticalLayout { // Cambiado a VerticalLayout para
     private Component createEditorLayout() {
         VerticalLayout editorLayout = new VerticalLayout();
         editorLayout.setPadding(true);
-        editorLayout.setSpacing(true);
-        editorLayout.getStyle().set("background-color", "#fcfcfc");
+        editorLayout.getStyle().set("background-color", "#fcfcfc").set("overflow-y", "auto");
+
+        // --- SECCIÓN IMAGEN DETALLE (GRANDE) ---
+        Div imageContainer = new Div(portadaDetalle);
+        imageContainer.setWidthFull();
+        imageContainer.getStyle()
+                .set("height", "220px")
+                .set("overflow", "hidden")
+                .set("border-radius", "12px")
+                .set("background", "#000")
+                .set("margin-bottom", "1rem");
+
+        portadaDetalle.setWidthFull();
+        portadaDetalle.getStyle().set("object-fit", "cover").set("height", "100%");
 
         H3 sectionTitle = new H3("Gestión de Información");
-        sectionTitle.getStyle().set("margin-top", "0");
+        sectionTitle.getStyle().set("margin", "0");
 
         FormLayout formLayout = new FormLayout();
-        titulo.setWidthFull();
-        descripcion.setHeight("150px");
-        formLayout.add(titulo, fechaSalida, descripcion);
+        urlImagen.setPlaceholder("http://ejemplo.com/imagen.jpg");
+        formLayout.add(titulo, fechaSalida, urlImagen, descripcion);
         formLayout.setColspan(descripcion, 2);
+        formLayout.setColspan(urlImagen, 2);
 
         HorizontalLayout buttonLayout = new HorizontalLayout(save, delete, cancel);
         save.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SUCCESS);
         delete.addThemeVariants(ButtonVariant.LUMO_ERROR, ButtonVariant.LUMO_TERTIARY);
-        cancel.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
         buttonLayout.getStyle().set("margin-top", "1rem");
 
-        Hr divider = new Hr();
-
-        H4 reviewTitle = new H4("Feedback de la Comunidad");
-        reviewsLayout.setWidthFull();
-        reviewsLayout.setPadding(false);
-
-        editorLayout.add(sectionTitle, formLayout, buttonLayout, divider, reviewTitle, reviewsLayout);
+        editorLayout.add(imageContainer, sectionTitle, formLayout, buttonLayout, new Hr(), new H4("Feedback"), reviewsLayout);
         return editorLayout;
     }
+
+    private void populateForm(Juego value) {
+        this.juegoSeleccionado = value;
+        binder.readBean(this.juegoSeleccionado);
+
+        if (value != null) {
+            // Actualizar imagen grande
+            String url = (value.getUrlImagen() == null || value.getUrlImagen().isEmpty())
+                    ? "https://via.placeholder.com/400x200?text=Sin+Imagen" : value.getUrlImagen();
+            portadaDetalle.setSrc(url);
+
+            cargarResenasVisuales(value.getReviews());
+            delete.setEnabled(value.getId() != null);
+        } else {
+            portadaDetalle.setSrc("https://via.placeholder.com/400x200?text=Selecciona+un+Juego");
+            reviewsLayout.removeAll();
+            delete.setEnabled(false);
+        }
+    }
+
+    // ... (Mantén tus métodos cargarResenasVisuales, refreshGrid, clearForm, saveJuego y deleteJuego igual)
 
     private void cargarResenasVisuales(List<Review> reviews) {
         reviewsLayout.removeAll();
         if (reviews == null || reviews.isEmpty()) {
-            Span empty = new Span("Aún no hay críticas para este título.");
+            Span empty = new Span("Aún no hay críticas.");
             empty.getStyle().set("color", "gray").set("font-style", "italic");
             reviewsLayout.add(empty);
         } else {
@@ -162,22 +206,13 @@ public class MainView extends VerticalLayout { // Cambiado a VerticalLayout para
                 card.getStyle()
                         .set("background", "white")
                         .set("border", "1px solid #eef0f2")
-                        .set("border-radius", "12px")
-                        .set("padding", "1rem")
-                        .set("box-shadow", "0 2px 4px rgba(0,0,0,0.05)")
+                        .set("border-radius", "8px")
+                        .set("padding", "0.8rem")
                         .set("margin-bottom", "0.5rem");
 
                 String estrellas = "⭐".repeat(Math.max(0, Math.min(5, r.getRating())));
-                Html ratingLabel = new Html("<span><b style='color:#f39c12'>" + estrellas + "</b></span>");
-
-                Paragraph comment = new Paragraph(r.getComentario());
-                comment.getStyle().set("margin", "0.5rem 0").set("font-size", "0.95rem");
-
-                Span author = new Span(VaadinIcon.USER.create());
-                author.add(" " + (r.getAutor() != null ? r.getAutor().getNombre() : "Anónimo"));
-                author.getStyle().set("font-size", "0.8rem").set("color", "#7f8c8d");
-
-                card.add(ratingLabel, comment, author);
+                card.add(new Html("<span><b style='color:#f39c12'>" + estrellas + "</b></span>"));
+                card.add(new Paragraph(r.getComentario()));
                 reviewsLayout.add(card);
             }
         }
@@ -188,36 +223,8 @@ public class MainView extends VerticalLayout { // Cambiado a VerticalLayout para
     }
 
     private void clearForm() {
+        grid.asSingleSelect().clear();
         populateForm(null);
-    }
-
-    private void populateForm(Juego value) {
-        // 1. Guardamos la referencia.
-        // Si 'value' es null, significa que se ha deseleccionado la fila.
-        this.juegoSeleccionado = value;
-
-        // 2. Leemos los datos en el Binder.
-        // Si es null, el binder limpiará automáticamente todos los campos del formulario.
-        binder.readBean(this.juegoSeleccionado);
-
-        if (value != null) {
-            // 3. Cargar reseñas: Verificamos que la lista no sea null antes de enviarla
-            cargarResenasVisuales(value.getReviews());
-
-            // 4. EL ARREGLO DEL ID:
-            // El botón eliminar solo debe estar habilitado si el juego ya existe (tiene ID).
-            // Si es un "Nuevo Juego", el ID será null y el botón debe estar desactivado.
-            boolean esJuegoExistente = value.getId() != null;
-            delete.setEnabled(esJuegoExistente);
-
-            // Opcional: Si el juego es nuevo, podemos cambiar el título del editor
-            // editorTitle.setText(esJuegoExistente ? "Editando: " + value.getTitulo() : "Nuevo Videojuego");
-
-        } else {
-            // Si no hay nada seleccionado, limpiamos el área de reseñas y desactivamos borrar
-            reviewsLayout.removeAll();
-            delete.setEnabled(false);
-        }
     }
 
     private void saveJuego() {
@@ -226,19 +233,18 @@ public class MainView extends VerticalLayout { // Cambiado a VerticalLayout para
             binder.writeBean(this.juegoSeleccionado);
             juegoService.guardar(this.juegoSeleccionado);
             refreshGrid();
-            Notification notification = Notification.show("¡Juego actualizado!");
-            notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+            Notification.show("¡Juego guardado!").addThemeVariants(NotificationVariant.LUMO_SUCCESS);
             clearForm();
         } catch (Exception e) {
-            Notification.show("Error: Revisa los campos").addThemeVariants(NotificationVariant.LUMO_ERROR);
+            Notification.show("Error al guardar").addThemeVariants(NotificationVariant.LUMO_ERROR);
         }
     }
 
     private void deleteJuego() {
-        if (this.juegoSeleccionado != null ) {
+        if (this.juegoSeleccionado != null && this.juegoSeleccionado.getId() != null) {
             juegoService.eliminar(this.juegoSeleccionado.getId());
             refreshGrid();
-            Notification.show("Juego borrado").addThemeVariants(NotificationVariant.LUMO_CONTRAST);
+            Notification.show("Eliminado").addThemeVariants(NotificationVariant.LUMO_CONTRAST);
             clearForm();
         }
     }
