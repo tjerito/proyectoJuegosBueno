@@ -14,7 +14,7 @@ import java.util.List;
 public class Juego {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
     @NotBlank(message = "El título del juego es obligatorio")
     @Size(min = 2, max = 100, message = "El título debe tener entre 2 y 100 caracteres")
@@ -40,4 +40,10 @@ public class Juego {
     // Validamos que al menos tenga un género asignado si es necesario
     @NotEmpty(message = "El juego debe pertenecer al menos a un género")
     private List<Genero> generos = new ArrayList<>();
+
+    // --- AÑADE ESTO ---
+    // mappedBy = "juego": indica que en la clase Review hay un campo llamado 'juego'
+    // FetchType.EAGER: Carga las reseñas automáticamente al cargar el juego (Evita errores en Vaadin)
+    @OneToMany(mappedBy = "juego", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    private List<Review> reviews = new ArrayList<>();
 }

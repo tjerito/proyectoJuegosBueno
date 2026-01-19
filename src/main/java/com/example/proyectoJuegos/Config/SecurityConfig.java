@@ -8,21 +8,35 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.stereotype.Component;
 
 @Configuration
 @EnableWebSecurity
+@Component
 public class SecurityConfig {
+
+    private final JwtAuthenticationFilter jwtAuthFilter; // <--- ESTO ES LO QUE FALTA
+
+    // Constructor para que Spring inyecte el filtro automáticamente
+    public SecurityConfig(JwtAuthenticationFilter jwtAuthFilter) {
+        this.jwtAuthFilter = jwtAuthFilter;
+    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-                .csrf(csrf -> csrf.disable()) // Desactivamos CSRF para APIs REST
-                .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Sin sesiones (usaremos JWT)
+        http.csrf(csrf -> csrf.disable())
+                // Permitimos sesiones para que Vaadin pueda funcionar en el navegador
+                .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/usuarios/**").permitAll() // ¡PERMITE TODO temporalmente para trabajar!
-                        .requestMatchers("/api/juegos/**").permitAll()
+                        // Rutas críticas para que cargue la interfaz de Vaadin
+                        .requestMatchers("/", "/vaadinServlet/**", "/frontend/**", "/VAADIN/**").permitAll()
+                        .requestMatchers("/api/auth/**").permitAll()
                         .anyRequest().authenticated()
                 );
+
+        // Solo añadimos el filtro JWT para las rutas que empiezan por /api/
+        http.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
