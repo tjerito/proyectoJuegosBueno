@@ -1,7 +1,9 @@
 package com.example.proyectoJuegos.Controllers;
 
 import com.example.proyectoJuegos.Entities.Juego;
+import com.example.proyectoJuegos.Exceptions.ResourceNotFoundException;
 import com.example.proyectoJuegos.Services.JuegoService;
+import jakarta.validation.Valid;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,43 +21,50 @@ public class JuegoController {
         this.service = service;
     }
 
-    // 1. LISTAR TODOS: GET http://localhost:8081/api/juegos
+    // 1. LISTAR TODOS
     @GetMapping
     public List<Juego> listar() {
         return service.listarTodos();
     }
 
-    // 2. BUSCAR POR ID: GET http://localhost:8081/api/juegos/1
+    // 2. BUSCAR POR ID
     @GetMapping("/{id}")
     public ResponseEntity<Juego> porId(@PathVariable Long id) {
-        return service.obtenerPorId(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        // Cambiamos el .orElse(notFound) por nuestra excepción personalizada
+        Juego juego = service.obtenerPorId(id)
+                .orElseThrow(() -> new ResourceNotFoundException("No se encontró el juego con ID: " + id));
+        return ResponseEntity.ok(juego);
     }
 
-    // 3. BUSCAR POR NOMBRE (PARCIAL): GET http://localhost:8081/api/juegos/buscar?nombre=Witch
+    // 3. BUSCAR POR NOMBRE (PARCIAL)
     @GetMapping("/buscar")
     public List<Juego> buscarPorNombre(@RequestParam String nombre) {
-        return service.buscarPorNombreParcial(nombre);
+        List<Juego> resultados = service.buscarPorNombreParcial(nombre);
+        if (resultados.isEmpty()) {
+            throw new ResourceNotFoundException("No se encontraron juegos que coincidan con: " + nombre);
+        }
+        return resultados;
     }
 
-    // 4. TOP 5 NOVEDADES: GET http://localhost:8081/api/juegos/novedades
+    // 4. TOP 5 NOVEDADES
     @GetMapping("/novedades")
     public List<Juego> obtenerNovedades() {
         return service.obtenerTop5Novedades();
     }
 
-    // 5. LANZAMIENTOS DESDE FECHA: GET http://localhost:8081/api/juegos/recientes?fecha=2023-01-01
+    // 5. LANZAMIENTOS DESDE FECHA
     @GetMapping("/recientes")
     public List<Juego> lanzamientosRecientes(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha) {
         return service.buscarLanzamientosRecientes(fecha);
     }
 
-    // 6. GUARDAR: POST http://localhost:8081/api/juegos
+    // 6. GUARDAR
     @PostMapping
-    public Juego crear(@RequestBody Juego juego) {
-        return service.guardar(juego);
+    public ResponseEntity<Juego> crear(@Valid @RequestBody Juego juego) {
+        // Añadimos @Valid para que se ejecuten las reglas (@NotBlank, @Size, etc.)
+        // Cambiamos el retorno a ResponseEntity para ser más profesionales
+        return ResponseEntity.status(201).body(service.guardar(juego));
     }
 
 }

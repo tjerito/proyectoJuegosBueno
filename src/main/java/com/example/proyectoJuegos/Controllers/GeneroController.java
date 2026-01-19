@@ -1,7 +1,9 @@
 package com.example.proyectoJuegos.Controllers;
 
 import com.example.proyectoJuegos.Entities.Genero;
+import com.example.proyectoJuegos.Exceptions.ResourceNotFoundException;
 import com.example.proyectoJuegos.Services.GeneroService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,43 +19,43 @@ public class GeneroController {
         this.service = service;
     }
 
-    // 1. LISTAR TODOS: GET http://localhost:8081/api/generos
+    // 1. LISTAR TODOS
     @GetMapping
     public List<Genero> obtenerTodos() {
         return service.listarTodos();
     }
 
-    // 2. BUSCAR POR ID: GET http://localhost:8081/api/generos/1
+    // 2. BUSCAR POR ID
     @GetMapping("/{id}")
     public ResponseEntity<Genero> obtenerPorId(@PathVariable Long id) {
-        return service.buscarPorId(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        // Usamos orElseThrow para que tu GlobalExceptionHandler capture el error 404
+        Genero genero = service.buscarPorId(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Género no encontrado con ID: " + id));
+        return ResponseEntity.ok(genero);
     }
 
-    // 3. BUSCAR POR NOMBRE: GET http://localhost:8081/api/generos/buscar?nombre=rpg
+    // 3. BUSCAR POR NOMBRE
     @GetMapping("/buscar")
     public ResponseEntity<Genero> obtenerPorNombre(@RequestParam String nombre) {
         return service.buscarPorNombre(nombre)
                 .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+                .orElseThrow(() -> new ResourceNotFoundException("Género no encontrado con nombre: " + nombre));
     }
 
-    // 4. CREAR/ACTUALIZAR: POST http://localhost:8081/api/generos
+    // 4. CREAR/ACTUALIZAR
     @PostMapping
-    public ResponseEntity<Genero> crear(@RequestBody Genero genero) {
-        // Al guardar, el servicio lo pondrá en MAYÚSCULAS automáticamente
+    public ResponseEntity<Genero> crear(@Valid @RequestBody Genero genero) {
+        // @Valid ahora interceptará si el nombre está vacío o es muy corto antes de entrar aquí
         return ResponseEntity.ok(service.guardar(genero));
     }
 
-    // 5. ELIMINAR: DELETE http://localhost:8081/api/generos/1
+    // 5. ELIMINAR
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminar(@PathVariable Long id) {
         if (service.buscarPorId(id).isPresent()) {
             service.eliminar(id);
             return ResponseEntity.noContent().build();
         }
-        return ResponseEntity.notFound().build();
+        throw new ResourceNotFoundException("No se puede eliminar: Género no encontrado con ID: " + id);
     }
-
 }

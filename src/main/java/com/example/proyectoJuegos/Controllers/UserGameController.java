@@ -2,7 +2,9 @@ package com.example.proyectoJuegos.Controllers;
 
 import com.example.proyectoJuegos.Entities.UserGame;
 import com.example.proyectoJuegos.Enums.Estado;
+import com.example.proyectoJuegos.Exceptions.ResourceNotFoundException;
 import com.example.proyectoJuegos.Services.UserGameService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,19 +21,24 @@ public class UserGameController {
         this.service = service;
     }
 
-    // 1. VER BIBLIOTECA DE UN USUARIO: GET http://localhost:8081/api/biblioteca/usuario/1
+    // 1. VER BIBLIOTECA DE UN USUARIO
     @GetMapping("/usuario/{userId}")
     public List<UserGame> verBiblioteca(@PathVariable Long userId) {
-        return service.obtenerBibliotecaPorUsuario(userId);
+        List<UserGame> biblioteca = service.obtenerBibliotecaPorUsuario(userId);
+        if (biblioteca.isEmpty()) {
+            throw new ResourceNotFoundException("No se encontró biblioteca para el usuario con ID: " + userId);
+        }
+        return biblioteca;
     }
 
-    // 2. AGREGAR JUEGO O ACTUALIZAR PROGRESO: POST http://localhost:8081/api/biblioteca
+    // 2. AGREGAR JUEGO O ACTUALIZAR PROGRESO
     @PostMapping
-    public ResponseEntity<UserGame> guardar(@RequestBody UserGame userGame) {
+    public ResponseEntity<UserGame> guardar(@Valid @RequestBody UserGame userGame) {
+        // @Valid asegura que horasJugadas no sea negativo y rating esté en rango
         return new ResponseEntity<>(service.guardarProgreso(userGame), HttpStatus.CREATED);
     }
 
-    // 3. AÑADIR HORAS A UN JUEGO: PATCH http://localhost:8081/api/biblioteca/usuario/1/juego/5/horas?cantidad=10
+    // 3. AÑADIR HORAS A UN JUEGO
     @PatchMapping("/usuario/{userId}/juego/{gameId}/horas")
     public ResponseEntity<UserGame> sumarHoras(
             @PathVariable Long userId,
@@ -39,10 +46,13 @@ public class UserGameController {
             @RequestParam int cantidad) {
 
         UserGame actualizado = service.añadirHoras(userId, gameId, cantidad);
-        return actualizado != null ? ResponseEntity.ok(actualizado) : ResponseEntity.notFound().build();
+        if (actualizado == null) {
+            throw new ResourceNotFoundException("No se pudo actualizar: El usuario o el juego no existen en la biblioteca.");
+        }
+        return ResponseEntity.ok(actualizado);
     }
 
-    // 4. CAMBIAR ESTADO (EJ: A COMPLETADO): PUT http://localhost:8081/api/biblioteca/usuario/1/juego/5/estado
+    // 4. CAMBIAR ESTADO
     @PutMapping("/usuario/{userId}/juego/{gameId}/estado")
     public ResponseEntity<UserGame> actualizarEstado(
             @PathVariable Long userId,
@@ -50,10 +60,13 @@ public class UserGameController {
             @RequestBody Estado nuevoEstado) {
 
         UserGame actualizado = service.cambiarEstado(userId, gameId, nuevoEstado);
-        return actualizado != null ? ResponseEntity.ok(actualizado) : ResponseEntity.notFound().build();
+        if (actualizado == null) {
+            throw new ResourceNotFoundException("No se pudo cambiar el estado: Registro no encontrado.");
+        }
+        return ResponseEntity.ok(actualizado);
     }
 
-    // 5. FILTRAR POR ESTADO: GET http://localhost:8081/api/biblioteca/filtro?estado=COMPLETADO
+    // 5. FILTRAR POR ESTADO
     @GetMapping("/filtro")
     public List<UserGame> filtrar(@RequestParam Estado estado) {
         return service.buscarPorEstado(estado);

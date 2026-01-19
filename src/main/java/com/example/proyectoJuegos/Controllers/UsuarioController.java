@@ -1,7 +1,10 @@
 package com.example.proyectoJuegos.Controllers;
 
 import com.example.proyectoJuegos.Entities.Usuario;
+import com.example.proyectoJuegos.Exceptions.ResourceNotFoundException;
 import com.example.proyectoJuegos.Services.UsuarioService;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,48 +23,47 @@ public class UsuarioController {
         this.service = service;
     }
 
-    // 1. OBTENER TODOS: GET http://localhost:8081/api/usuarios
+    // 1. OBTENER TODOS
     @GetMapping
     public List<Usuario> obtenerTodos() {
-        //Internamente Spring toma la lista y devuelve un paquete como los demás métodos
-        //Sin embargo, al no tener que controlar ninguna situación concreta, podemos hacer un return de una lista
         return service.listarTodos();
     }
 
-    // 2. OBTENER POR ID: GET http://localhost:8081/api/usuarios/1
+    // 2. OBTENER POR ID
     @GetMapping("/{id}")
     public ResponseEntity<Usuario> obtenerPorId(@PathVariable Long id) {
-        return service.buscarPorId(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        Usuario usuario = service.buscarPorId(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con ID: " + id));
+        return ResponseEntity.ok(usuario);
     }
 
-    // 3. BUSCAR POR EMAIL: GET http://localhost:8081/api/usuarios/email?valor=fran@example.com
+    // 3. BUSCAR POR EMAIL
     @GetMapping("/email")
     public ResponseEntity<Usuario> obtenerPorEmail(@RequestParam("valor") String email) {
-        return service.buscarPorEmail(email)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        Usuario usuario = service.buscarPorEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("No existe un usuario registrado con el email: " + email));
+        return ResponseEntity.ok(usuario);
     }
 
-    // 4. CREAR USUARIO: POST http://localhost:8081/api/usuarios
+    // 4. CREAR USUARIO
     @PostMapping
-    public ResponseEntity<?> crear(@RequestBody Usuario usuario) {
-        // Validación: No permitir emails duplicados
+    public ResponseEntity<Usuario> crear(@Valid @RequestBody Usuario usuario) {
+        // La validación de email duplicado sigue siendo lógica de negocio necesaria
         if (service.existeEmail(usuario.getEmail())) {
-            return ResponseEntity.badRequest().body("Error: El email ya está registrado.");
+            // Podrías crear una excepción personalizada "DuplicateResourceException" si quisieras
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }
-        return ResponseEntity.ok(service.guardar(usuario));
+        return ResponseEntity.status(HttpStatus.CREATED).body(service.guardar(usuario));
     }
 
-    // 5. ELIMINAR: DELETE http://localhost:8081/api/usuarios/1
+    // 5. ELIMINAR
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminar(@PathVariable Long id) {
-        if (service.buscarPorId(id).isPresent()) {
-            service.eliminar(id);
-            return ResponseEntity.noContent().build(); // Devuelve 204 (Éxito, sin contenido)
-        }
-        return ResponseEntity.notFound().build();
+        return service.buscarPorId(id)
+                .map(u -> {
+                    service.eliminar(id);
+                    return ResponseEntity.noContent().<Void>build();
+                })
+                .orElseThrow(() -> new ResourceNotFoundException("No se puede eliminar: Usuario no encontrado con ID: " + id));
     }
-
 }
