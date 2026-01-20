@@ -2,15 +2,18 @@ package com.example.proyectoJuegos.DataLoader;
 
 import com.example.proyectoJuegos.Entities.*;
 import com.example.proyectoJuegos.Enums.Estado;
+import com.example.proyectoJuegos.Enums.Role;
 import com.example.proyectoJuegos.Services.*;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 
 @Component
 public class DataLoader implements CommandLineRunner {
@@ -55,37 +58,37 @@ public class DataLoader implements CommandLineRunner {
         juegos.add(crearJuego("Elden Ring", "Desafío extremo en las Tierras Intermedias.", 2022, 2, 25, rpg, "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/1245620/header.jpg"));
         juegos.add(crearJuego("Cyberpunk 2077", "Futuro distópico en Night City.", 2020, 12, 10, rpg, "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/1091500/header.jpg"));
         juegos.add(crearJuego("Baldur's Gate 3", "Rol puro basado en Dungeons & Dragons.", 2023, 8, 3, rpg, "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/1086940/header.jpg"));
-        juegos.add(crearJuego("Final Fantasy VII Rebirth", "El viaje de Cloud continúa fuera de Midgar.", 2024, 2, 29, rpg, "https://image.api.playstation.com/vulcan/ap/rnd/202309/0712/9160100d3d528b7e289895c1a7d6e64ca658392cf99a19c5.png"));
+        juegos.add(crearJuego("Final Fantasy VII Rebirth", "El viaje de Cloud continúa fuera de Midgar.", 2024, 2, 29, rpg, "https://gaming-cdn.com/images/products/10365/orig/final-fantasy-vii-rebirth-pc-steam-cover.jpg?v=1750336681"));
         juegos.add(crearJuego("Skyrim", "Exploración infinita en las tierras del norte.", 2011, 11, 11, rpg, "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/489830/header.jpg"));
 
         // --- ACCIÓN / AVENTURA ---
         juegos.add(crearJuego("God of War Ragnarok", "Kratos y Atreus enfrentan el fin del mundo.", 2022, 11, 9, accion, "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/2322010/header.jpg"));
         juegos.add(crearJuego("Red Dead Redemption 2", "La vida de un forajido en el ocaso del salvaje oeste.", 2018, 10, 26, aventura, "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/1174180/header.jpg"));
-        juegos.add(crearJuego("Zelda: Tears of the Kingdom", "Libertad creativa total en el reino de Hyrule.", 2023, 5, 12, aventura, "https://assets.nintendo.com/image/upload/ar_16:9,c_lpad,w_656/bcom/en_US/games/switch/t/the-legend-of-zelda-tears-of-the-kingdom-switch/hero"));
-        juegos.add(crearJuego("The Last of Us Part II", "Una cruda historia de venganza y redención.", 2020, 6, 19, aventura, "https://image.api.playstation.com/vulcan/img/rnd/202010/2618/it98up39YpS69Yp9v9v9v9v9.png"));
+        juegos.add(crearJuego("Zelda: Tears of the Kingdom", "Libertad creativa total en el reino de Hyrule.", 2023, 5, 12, aventura, "https://www.nintendo.com/eu/media/images/10_share_images/games_15/nintendo_switch_4/2x1_NSwitch_TloZTearsOfTheKingdom_Gamepage_image1600w.jpg"));
+        juegos.add(crearJuego("The Last of Us Part II", "Una cruda historia de venganza y redención.", 2020, 6, 19, aventura, "https://i0.wp.com/www.teilzeithelden.de/wp-content/uploads/2020/10/The-Last-of-Us-Part-II-Rant-Analysis-Header-%C2%A9-Naughty-Dog.png?fit=1068%2C580&ssl=1"));
         juegos.add(crearJuego("Ghost of Tsushima", "Un samurái contra la invasión mongola.", 2020, 7, 17, accion, "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/2215430/header.jpg"));
         juegos.add(crearJuego("Horizon Forbidden West", "Aloy viaja al oeste prohibido.", 2022, 2, 18, aventura, "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/2420110/header.jpg"));
-        juegos.add(crearJuego("Spider-Man 2", "Peter y Miles contra Kraven y Venom.", 2023, 10, 20, accion, "https://image.api.playstation.com/vulcan/ap/rnd/202306/1219/60132d0575660361597f8af92a71ad927e57962cf4ca071a.png"));
+        juegos.add(crearJuego("Spider-Man 2", "Peter y Miles contra Kraven y Venom.", 2023, 10, 20, accion, "https://image.api.playstation.com/vulcan/ap/rnd/202306/1219/2028edeaf4c0b60142550a3d6e024b6009853ceb9f51591e.jpg"));
         juegos.add(crearJuego("Uncharted 4", "La última aventura de Nathan Drake.", 2016, 5, 10, aventura, "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/1659420/header.jpg"));
 
         // --- SHOOTER ---
         juegos.add(crearJuego("DOOM Eternal", "Matanza frenética de demonios al ritmo de metal.", 2020, 3, 20, shooter, "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/782330/header.jpg"));
         juegos.add(crearJuego("Halo Infinite", "El Jefe Maestro regresa a un anillo Halo.", 2021, 12, 8, shooter, "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/1240440/header.jpg"));
-        juegos.add(crearJuego("Overwatch 2", "Héroes compitiendo en partidas por equipos.", 2022, 10, 4, shooter, "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/1506830/header.jpg"));
-        juegos.add(crearJuego("Call of Duty: MW3", "Combate táctico militar intenso.", 2023, 11, 10, shooter, "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/2314390/header.jpg"));
+        juegos.add(crearJuego("Overwatch 2", "Héroes compitiendo en partidas por equipos.", 2022, 10, 4, shooter, "https://upload.wikimedia.org/wikipedia/en/thumb/8/89/Overwatch_2_Steam_artwork.jpg/250px-Overwatch_2_Steam_artwork.jpg"));
+        juegos.add(crearJuego("Call of Duty: MW3", "Combate táctico militar intenso.", 2023, 11, 10, shooter, "https://cdn.dlcompare.com/game_tetiere/upload/gameimage/file/modern_warfare_3_img4.jpg.webp"));
         juegos.add(crearJuego("BioShock Infinite", "Aventura en la ciudad flotante de Columbia.", 2013, 3, 26, shooter, "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/8870/header.jpg"));
 
         // --- TERROR ---
         juegos.add(crearJuego("Resident Evil 4 Remake", "Leon Kennedy rescata a la hija del presidente.", 2023, 3, 24, terror, "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/2050650/header.jpg"));
         juegos.add(crearJuego("Dead Space Remake", "Terror claustrofóbico en la nave Ishimura.", 2023, 1, 27, terror, "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/1693980/header.jpg"));
         juegos.add(crearJuego("Silent Hill 2", "Un clásico del terror psicológico.", 2001, 9, 24, terror, "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/2124490/header.jpg"));
-        juegos.add(crearJuego("Alan Wake 2", "Escritor atrapado en una pesadilla real.", 2023, 10, 27, terror, "https://image.api.playstation.com/vulcan/ap/rnd/202305/1711/846875b22b07e77b61c9255ef81e9f733f11409f53e6b206.png"));
+        juegos.add(crearJuego("Alan Wake 2", "Escritor atrapado en una pesadilla real.", 2023, 10, 27, terror, "https://store-images.s-microsoft.com/image/apps.7759.14335040691238971.69596c0b-00e0-49eb-a6ce-2535ef602b5e.d8780f81-4399-46f1-bd6d-4027f002304d?q=90&w=480&h=270"));
         juegos.add(crearJuego("Outlast", "Sobrevive con una cámara en un manicomio.", 2013, 9, 4, terror, "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/238320/header.jpg"));
 
         // --- PLATAFORMAS / OTROS ---
         juegos.add(crearJuego("Hollow Knight", "Explora un reino de insectos bellamente dibujado.", 2017, 2, 24, aventura, "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/367520/header.jpg"));
         juegos.add(crearJuego("It Takes Two", "Cooperación necesaria para salvar un matrimonio.", 2021, 3, 26, plataforma, "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/1426210/header.jpg"));
-        juegos.add(crearJuego("Super Mario Odyssey", "Viaja por mundos increíbles con Cappy.", 2017, 10, 27, plataforma, "https://assets.nintendo.com/image/upload/ar_16:9,c_lpad,w_656/bcom/en_US/games/switch/s/super-mario-odyssey-switch/hero"));
+        juegos.add(crearJuego("Super Mario Odyssey", "Viaja por mundos increíbles con Cappy.", 2017, 10, 27, plataforma, "https://cdn.cdkeys.com/496x700/media/catalog/product/s/u/super_mario_odyssey.jpg"));
         juegos.add(crearJuego("Cuphead", "Estética de dibujos de los años 30.", 2017, 9, 29, plataforma, "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/268910/header.jpg"));
         juegos.add(crearJuego("Stray", "Explora una ciudad ciberpunk siendo un gato.", 2022, 7, 19, aventura, "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/1332010/header.jpg"));
         juegos.add(crearJuego("Sekiro", "Combate de katanas preciso y exigente.", 2019, 3, 22, accion, "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/814380/header.jpg"));
@@ -117,6 +120,8 @@ public class DataLoader implements CommandLineRunner {
         u.setNombre(nombre);
         u.setEmail(email);
         u.setPassword(passwordEncoder.encode(pass));
+        u.setRoles(Set.of(Role.USER));
+        u.setFechaCreacion(LocalDateTime.now()); // <--- ASÍGNALO AQUÍ MANUALMENTE TAMBIÉN
         return usuarioService.guardar(u);
     }
 

@@ -1,44 +1,34 @@
 package com.example.proyectoJuegos.Config;
 
+import com.example.proyectoJuegos.Views.LoginView;
+import com.vaadin.flow.spring.security.VaadinWebSecurity;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.stereotype.Component;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
-@Configuration
 @EnableWebSecurity
-@Component
-public class SecurityConfig {
+@Configuration
+public class SecurityConfig extends VaadinWebSecurity {
 
-    // 1. Declaramos el filtro para que el IDE lo reconozca
-    private final JwtAuthenticationFilter jwtAuthFilter;
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        // 1. Configuramos los permisos de las rutas primero
+        http.authorizeHttpRequests(auth -> auth
+                .requestMatchers(new AntPathRequestMatcher("/register")).permitAll()
+                .requestMatchers(new AntPathRequestMatcher("/images/**")).permitAll()
+                .requestMatchers(new AntPathRequestMatcher("/line-awesome/**")).permitAll()
+        );
 
-    // 2. Lo inyectamos por constructor
-    public SecurityConfig(JwtAuthenticationFilter jwtAuthFilter) {
-        this.jwtAuthFilter = jwtAuthFilter;
-    }
+        // 2. IMPORTANTE: Llamamos al configure de Vaadin al FINAL
+        // Esto evita el error "Can't configure requestMatchers after anyRequest"
+        super.configure(http);
 
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.csrf(csrf -> csrf.disable())
-                .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth -> auth
-                        // PERMISOS CRÍTICOS PARA VAADIN (Añade estos exactamente)
-                        .requestMatchers("/", "/index.html", "/vaadinServlet/**", "/frontend/**",
-                                "/VAADIN/**", "/webjars/**", "/favicon.ico", "/sw.js").permitAll()
-                        .requestMatchers("/api/auth/**").permitAll()
-                        .anyRequest().permitAll() // Cambia temporalmente a permitAll para probar que carga
-                )
-                // 3. Ya no saldrá en rojo porque jwtAuthFilter existe ahora como variable
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
-
-        return http.build();
+        // 3. Registramos la vista de login
+        setLoginView(http, LoginView.class);
     }
 
     @Bean

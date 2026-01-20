@@ -36,13 +36,14 @@ public class Juego {
     @OneToMany(mappedBy = "game", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UserGame> lista = new ArrayList<>();
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "juego_genero",
             joinColumns = @JoinColumn(name = "juego_id"),
             inverseJoinColumns = @JoinColumn(name = "genero_id")
     )
     // Validamos que al menos tenga un género asignado si es necesario
+
     @NotEmpty(message = "El juego debe pertenecer al menos a un género")
     private List<Genero> generos = new ArrayList<>();
 

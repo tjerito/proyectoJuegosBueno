@@ -12,7 +12,7 @@ public class Genero {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
     @NotBlank(message = "El nombre del género es obligatorio")
     @Size(min = 3, max = 30, message = "El nombre del género debe tener entre 3 y 30 caracteres")

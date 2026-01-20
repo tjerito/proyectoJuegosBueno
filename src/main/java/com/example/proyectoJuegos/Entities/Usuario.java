@@ -1,5 +1,6 @@
 package com.example.proyectoJuegos.Entities;
 
+import com.example.proyectoJuegos.Enums.Role;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.Data;
@@ -11,6 +12,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 @Data //Para escriura automática de código redundante
 @Entity //Hace entender al JPA que esta clase es una tabla
@@ -49,19 +51,26 @@ public class Usuario implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        // Por ahora, todos son USER. Luego lo haremos dinámico con Roles
-        return List.of(new SimpleGrantedAuthority("ROLE_USER"));
+        if (roles == null || roles.isEmpty()) {
+            return List.of(new SimpleGrantedAuthority("ROLE_USER"));
+        }
+        return roles.stream()
+                .map(role -> new SimpleGrantedAuthority("ROLE_" + role.name()))
+                .toList();
     }
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    private Set<Role> roles;
 
     @Override
     public String getPassword() {
-        return "";
+        return this.password;
     }
 
     @Override
     public String getUsername() {
-        return this.email; // Usaremos el email como nombre de usuario para loguear
-    }
+        return this.nombre;
+    }// Usaremos el email como nombre de usuario para loguear
 
     @Override
     public boolean isAccountNonExpired() { return true; }
