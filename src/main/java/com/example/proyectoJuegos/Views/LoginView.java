@@ -24,16 +24,13 @@ public class LoginView extends VerticalLayout implements BeforeEnterObserver {
         setAlignItems(Alignment.CENTER);
         setJustifyContentMode(JustifyContentMode.CENTER);
 
-        // Fondo Temático (Wallpaper de videojuegos)
         getStyle().set("background", "url('https://i.pinimg.com/736x/39/54/7b/39547b886e2c518abe91199ce75d1bd7.jpg')")
                 .set("background-size", "cover")
                 .set("background-position", "center");
 
-        // Configuración del Formulario
         login.setAction("login");
         login.setForgotPasswordButtonVisible(false);
 
-        // Efecto Glassmorphism (Cristal)
         login.getElement().getStyle()
                 .set("background", "rgba(255, 255, 255, 0.1)")
                 .set("backdrop-filter", "blur(12px)")

@@ -9,7 +9,7 @@ import java.util.Optional;
 @Repository
 public interface GeneroRepositorio extends JpaRepository<Genero, Long> {
 
-    // Buscar el género por su nombre (ej: "RPG")
+    // Buscar el género por su nombre
     Optional<Genero> findByNombreIgnoreCase(String nombre);
 
 }

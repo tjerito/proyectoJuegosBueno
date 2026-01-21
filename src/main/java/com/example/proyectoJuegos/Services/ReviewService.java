@@ -13,15 +13,12 @@ public class ReviewService {
 
     private final ReviewRepositorio repo;
 
-    // Inyección por constructor
     public ReviewService(ReviewRepositorio repo) {
         this.repo = repo;
     }
 
-    // --- MÉTODOS DE PERSISTENCIA ---
 
     public Review guardar(Review review) {
-        // Lógica de negocio: Si es una review nueva, le ponemos la fecha de hoy automáticamente
         if (review.getId() == 0) {
             review.setFechaReview(LocalDate.now());
         }
@@ -40,20 +37,16 @@ public class ReviewService {
         repo.deleteById(id);
     }
 
-    // --- MÉTODOS DE BÚSQUEDA PERSONALIZADOS ---
 
     public List<Review> buscarPorJuego(Long juegoId) {
-        // Útil para mostrar todas las críticas en la ficha de un juego
         return repo.findByJuegoId(juegoId);
     }
 
     public List<Review> buscarPorAutor(Long usuarioId) {
-        // Útil para mostrar el historial de críticas en el perfil de un usuario
         return repo.findByAutorId(usuarioId);
     }
 
     public List<Review> buscarMejoresReviews(Integer notaMinima) {
-        // Útil para un widget de "Críticas destacadas"
         return repo.findByRatingGreaterThanEqual(notaMinima);
     }
 

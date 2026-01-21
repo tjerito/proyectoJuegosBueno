@@ -12,10 +12,10 @@ public interface ReviewRepositorio extends JpaRepository<Review,Long> {
     // Ver todas las reviews de un juego concreto
     List<Review> findByJuegoId(Long juegoId);
 
-    // Ver todas las reviews de un autor (Usuario)
+    // Ver todas las reviews de un autor
     List<Review> findByAutorId(Long usuarioId);
 
-    // Buscar reviews con una puntuación alta (ej: 9 o 10)
+    // Buscar reviews con una puntuación alta
     List<Review> findByRatingGreaterThanEqual(Integer rating);
 
 }

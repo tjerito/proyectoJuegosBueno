@@ -17,10 +17,8 @@ public class UserGameService {
         this.repo = repo;
     }
 
-    // --- OPERACIONES DE GESTIÓN DE BIBLIOTECA ---
 
     public UserGame guardarProgreso(UserGame userGame) {
-        // Lógica de negocio: Por ejemplo, asegurar que las horas no sean negativas
         if (userGame.getHorasJugadas() < 0) {
             userGame.setHorasJugadas(0);
         }
@@ -31,11 +29,8 @@ public class UserGameService {
         return repo.findByUserId(userId);
     }
 
-    // --- LÓGICA DE ACTUALIZACIÓN ESPECÍFICA ---
 
-    /**
-     * Actualiza las horas de juego de un registro existente.
-     */
+
     public UserGame añadirHoras(Long userId, Long gameId, int nuevasHoras) {
         Optional<UserGame> registro = repo.findByUserIdAndGameId(userId, gameId);
 
@@ -44,12 +39,9 @@ public class UserGameService {
             ug.setHorasJugadas(ug.getHorasJugadas() + nuevasHoras);
             return repo.save(ug);
         }
-        return null; // O lanzar una excepción personalizada
+        return null;
     }
 
-    /**
-     * Cambia el estado de un juego (ej: de PENDIENTE a COMPLETADO).
-     */
     public UserGame cambiarEstado(Long userId, Long gameId, Estado nuevoEstado) {
         return repo.findByUserIdAndGameId(userId, gameId)
                 .map(ug -> {
@@ -58,8 +50,6 @@ public class UserGameService {
                 })
                 .orElse(null);
     }
-
-    // --- FILTROS ---
 
     public List<UserGame> buscarPorEstado(Estado estado) {
         return repo.findByEstado(estado);

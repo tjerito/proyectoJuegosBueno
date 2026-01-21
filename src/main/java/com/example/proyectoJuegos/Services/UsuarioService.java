@@ -11,15 +11,12 @@ import java.util.Optional;
 @Service
 public class UsuarioService {
 
-    // Atributo final para asegurar que se inicialice por constructor
     private final UsuarioRepositorio repo;
 
-    // Inyección por constructor (No hace falta @Autowired en versiones modernas)
     public UsuarioService(UsuarioRepositorio repo) {
         this.repo = repo;
     }
 
-    // --- MÉTODOS CRUD BÁSICOS (Vienen por defecto en la interfaz) ---
 
     public List<Usuario> listarTodos() {
         return repo.findAll();
@@ -30,7 +27,6 @@ public class UsuarioService {
     }
 
     public Usuario guardar(Usuario usuario) {
-        // Lógica de negocio: Si es un usuario nuevo, le asignamos la fecha de creación actual
         if (usuario.getId() == 0) { // O usuario.getId() == null si cambiaste a Long
             usuario.setFechaCreacion(LocalDateTime.now());
         }
@@ -41,7 +37,6 @@ public class UsuarioService {
         repo.deleteById(id);
     }
 
-    // --- MÉTODOS DERIVADOS DE LA INTERFAZ ---
 
     public Optional<Usuario> buscarPorNombre(String nombre) {
         return repo.findByNombre(nombre);

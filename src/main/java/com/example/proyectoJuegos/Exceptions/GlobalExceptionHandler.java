@@ -12,7 +12,7 @@ import java.util.Map;
 @ControllerAdvice // Indica que esta clase captura errores de todos los Controllers
 public class GlobalExceptionHandler {
 
-    // 1. Maneja errores de validación (@NotBlank, @Size, @Min, etc.) -> Error 400
+    // 1. Maneja errores de validación -> Error 400
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
         Map<String, String> errores = new HashMap<>();

@@ -46,20 +46,19 @@ public class MainView extends VerticalLayout {
     private final JuegoService juegoService;
     private final GeneroService generoService;
 
-    // Contenedor de la galería
+    private final VerticalLayout reviewsContainer = new VerticalLayout();
+    private final Image headerImage = new Image();
+
     private final FlexLayout cardContainer = new FlexLayout();
 
-    // Filtros
     private final TextField filterName = new TextField();
     private final ComboBox<Genero> filterGenre = new ComboBox<>();
     private final DatePicker filterDate = new DatePicker();
 
-    // Diálogo de edición
     private final Dialog editDialog = new Dialog();
     private final Binder<Juego> binder = new Binder<>(Juego.class);
     private Juego juegoActual;
 
-    // Campos del formulario
     private final TextField titulo = new TextField("Título");
     private final TextField urlImagen = new TextField("URL Portada");
     private final DatePicker fechaSalida = new DatePicker("Fecha Lanzamiento");
@@ -79,7 +78,6 @@ public class MainView extends VerticalLayout {
     }
 
     private void setupLayout() {
-        // --- HEADER CON MODO OSCURO ---
         H1 logo = new H1("GameHub Manager");
         logo.getStyle().set("font-size", "1.6rem").set("margin", "0");
 
@@ -102,7 +100,6 @@ public class MainView extends VerticalLayout {
         header.setPadding(true);
         header.getStyle().set("border-bottom", "1px solid var(--lumo-contrast-10pct)");
 
-        // --- BARRA DE FILTROS ---
         filterName.setPlaceholder("Buscar por nombre...");
         filterName.setValueChangeMode(ValueChangeMode.LAZY);
         filterName.addValueChangeListener(e -> updateGallery());
@@ -122,7 +119,6 @@ public class MainView extends VerticalLayout {
         toolbar.setWidthFull();
         toolbar.setPadding(true);
 
-        // --- CONTENEDOR DE TARJETAS ---
         cardContainer.setWidthFull();
         cardContainer.getStyle().set("flex-wrap", "wrap").set("gap", "20px").set("justify-content", "center");
 
@@ -186,36 +182,78 @@ public class MainView extends VerticalLayout {
     }
 
     private void setupDialog() {
-        editDialog.setHeaderTitle("Gestionar Videojuego");
-        editDialog.setModal(true);
-        editDialog.setDraggable(true);
-        editDialog.setWidth("500px");
+        editDialog.setWidth("1050px");
+        editDialog.setHeight("80vh");
 
         generosField.setItems(generoService.listarTodos());
         generosField.setItemLabelGenerator(Genero::getNombre);
+        generosField.setPlaceholder("Selecciona géneros...");
 
-        FormLayout form = new FormLayout(titulo, fechaSalida, urlImagen, generosField, descripcion);
+        headerImage.setWidthFull();
+        headerImage.setHeight("280px");
+        headerImage.getStyle()
+                .set("object-fit", "cover")
+                .set("border-radius", "12px 12px 0 0")
+                .set("margin-bottom", "10px");
+
+        HorizontalLayout bodyLayout = new HorizontalLayout();
+        bodyLayout.setSizeFull();
+        bodyLayout.setSpacing(true);
+        bodyLayout.setPadding(true);
+
+        VerticalLayout leftSection = new VerticalLayout();
+        leftSection.setWidth("45%");
+        leftSection.setSpacing(true);
+
+        H3 reviewTitle = new H3("Opiniones de Jugadores");
+        reviewTitle.getStyle().set("margin-top", "0").set("color", "var(--lumo-primary-text-color)");
+
+        reviewsContainer.setWidthFull();
+        reviewsContainer.setPadding(false);
+        Scroller reviewScroller = new Scroller(reviewsContainer);
+        reviewScroller.setHeight("450px"); // Espacio generoso para leer
+        reviewScroller.setWidthFull();
+
+        leftSection.add(reviewTitle, reviewScroller);
+
+        VerticalLayout rightSection = new VerticalLayout();
+        rightSection.setWidth("55%");
+        rightSection.setSpacing(true);
+
+        H3 editTitle = new H3("Editar Información");
+        editTitle.getStyle().set("margin-top", "0");
+
+        FormLayout form = new FormLayout();
+        form.add(titulo, fechaSalida, urlImagen, generosField, descripcion);
         form.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
+        descripcion.setMinHeight("150px");
+        descripcion.setMaxHeight("300px");
 
-        Button saveBtn = new Button("Guardar", e -> save());
-        saveBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SUCCESS);
+        rightSection.add(editTitle, form);
 
-        Button deleteBtn = new Button("Eliminar", e -> delete());
+        bodyLayout.add(leftSection, rightSection);
+
+        VerticalLayout dialogLayout = new VerticalLayout(headerImage, bodyLayout);
+        dialogLayout.setPadding(false);
+        dialogLayout.setSpacing(false);
+
+        editDialog.add(new Scroller(dialogLayout));
+
+        Button saveBtn = new Button("Guardar Cambios", e -> save());
+        saveBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+
+        Button deleteBtn = new Button("Borrar Juego", e -> delete());
         deleteBtn.addThemeVariants(ButtonVariant.LUMO_ERROR, ButtonVariant.LUMO_TERTIARY);
 
-        Button closeBtn = new Button("Cerrar", e -> editDialog.close());
+        Button closeBtn = new Button("Cancelar", e -> editDialog.close());
 
-        editDialog.add(form);
         editDialog.getFooter().add(deleteBtn, closeBtn, saveBtn);
     }
 
     private void setupBinder() {
-        // Conversor Set -> List para géneros
         binder.forField(generosField)
                 .withConverter(
-                        // Forzamos que devuelva List (la interfaz) y no ArrayList (la clase concreta)
                         set -> (List<Genero>) (set == null ? new ArrayList<>() : new ArrayList<>(set)),
-                        // Forzamos que devuelva Set (la interfaz)
                         list -> (Set<Genero>) (list == null ? new HashSet<>() : new HashSet<>(list))
                 )
                 .bind(Juego::getGeneros, Juego::setGeneros);
@@ -225,6 +263,44 @@ public class MainView extends VerticalLayout {
     private void openEditor(Juego juego) {
         this.juegoActual = juego;
         binder.readBean(juegoActual);
+
+        headerImage.setSrc(juego.getUrlImagen() != null && !juego.getUrlImagen().isEmpty()
+                ? juego.getUrlImagen() : "https://via.placeholder.com/1050x280?text=Sin+Imagen");
+
+        reviewsContainer.removeAll();
+        if (juego.getReviews() == null || juego.getReviews().isEmpty()) {
+            Span noReviews = new Span("Nadie ha reseñado este juego todavía. ¡Sé el primero!");
+            noReviews.getStyle().set("color", "gray").set("font-style", "italic");
+            reviewsContainer.add(noReviews);
+        } else {
+            juego.getReviews().forEach(review -> {
+                Div card = new Div();
+                card.getStyle()
+                        .set("background", "var(--lumo-contrast-5pct)")
+                        .set("padding", "15px")
+                        .set("border-radius", "10px")
+                        .set("margin-bottom", "10px")
+                        .set("width", "95%");
+
+                HorizontalLayout top = new HorizontalLayout();
+                top.setJustifyContentMode(JustifyContentMode.BETWEEN);
+                top.setWidthFull();
+
+                Span autor = new Span(VaadinIcon.USER.create(), new Span(" " + review.getAutor().getNombre()));
+                autor.getStyle().set("font-weight", "bold");
+
+                Span estrellas = new Span("⭐ ".repeat(review.getRating()));
+
+                top.add(autor, estrellas);
+
+                Paragraph texto = new Paragraph(review.getComentario());
+                texto.getStyle().set("margin-top", "8px").set("font-size", "0.9rem");
+
+                card.add(top, texto);
+                reviewsContainer.add(card);
+            });
+        }
+
         editDialog.open();
     }
 

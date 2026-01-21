@@ -13,12 +13,10 @@ public class JuegoService {
 
     private final JuegoRepositorio repo;
 
-    // Inyección por constructor: limpia, segura y fácil de testear
     public JuegoService(JuegoRepositorio repo) {
         this.repo = repo;
     }
 
-    // --- OPERACIONES CRUD ---
 
     public List<Juego> listarTodos() {
         return repo.findAll();
@@ -29,8 +27,6 @@ public class JuegoService {
     }
 
     public Juego guardar(Juego juego) {
-        // Aquí podrías añadir lógica, como por ejemplo:
-        // Asegurar que el título siempre se guarde con la primera letra en mayúscula
         return repo.save(juego);
     }
 
@@ -38,14 +34,12 @@ public class JuegoService {
         repo.deleteById(id);
     }
 
-    // --- BÚSQUEDAS PERSONALIZADAS ---
 
     public Optional<Juego> buscarPorTituloExacto(String titulo) {
         return repo.findByTitulo(titulo);
     }
 
     public List<Juego> buscarPorNombreParcial(String palabra) {
-        // Ideal para buscadores en tiempo real en la web
         return repo.findByTituloContainingIgnoreCase(palabra);
     }
 
@@ -54,7 +48,6 @@ public class JuegoService {
     }
 
     public List<Juego> obtenerTop5Novedades() {
-        // Este método es genial para un carrusel de "Novedades" en la página de inicio
         return repo.findTop5ByOrderByFechaSalidaDesc();
     }
 }

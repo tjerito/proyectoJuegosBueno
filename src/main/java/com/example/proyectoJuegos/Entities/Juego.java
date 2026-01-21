@@ -52,4 +52,5 @@ public class Juego {
     // FetchType.EAGER: Carga las reseñas automáticamente al cargar el juego (Evita errores en Vaadin)
     @OneToMany(mappedBy = "juego", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private List<Review> reviews = new ArrayList<>();
+
 }

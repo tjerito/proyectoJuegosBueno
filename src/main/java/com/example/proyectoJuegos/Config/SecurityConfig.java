@@ -16,18 +16,15 @@ public class SecurityConfig extends VaadinWebSecurity {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        // 1. Configuramos los permisos de las rutas primero
         http.authorizeHttpRequests(auth -> auth
                 .requestMatchers(new AntPathRequestMatcher("/register")).permitAll()
                 .requestMatchers(new AntPathRequestMatcher("/images/**")).permitAll()
                 .requestMatchers(new AntPathRequestMatcher("/line-awesome/**")).permitAll()
         );
 
-        // 2. IMPORTANTE: Llamamos al configure de Vaadin al FINAL
-        // Esto evita el error "Can't configure requestMatchers after anyRequest"
+
         super.configure(http);
 
-        // 3. Registramos la vista de login
         setLoginView(http, LoginView.class);
     }
 

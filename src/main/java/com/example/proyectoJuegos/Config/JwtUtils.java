@@ -12,7 +12,6 @@ import java.util.Date;
 @Component
 public class JwtUtils {
 
-    // Clave secreta para firmar los tokens (mínimo 64 caracteres para HS512)
     private final String JWT_SECRET = "esta_es_una_clave_secreta_muy_larga_para_nuestro_proyecto_de_juegos_2024";
     private final long JWT_EXPIRATION = 86400000; // 24 horas en milisegundos
 
@@ -20,7 +19,6 @@ public class JwtUtils {
         return Keys.hmacShaKeyFor(JWT_SECRET.getBytes());
     }
 
-    // 1. Generar el token basándose en el email del usuario
     public String generarToken(String email) {
         return Jwts.builder()
                 .setSubject(email)
@@ -30,7 +28,6 @@ public class JwtUtils {
                 .compact();
     }
 
-    // 2. Extraer el nombre de usuario (email) del token
     public String getUsernameFromToken(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(getSigningKey())
@@ -46,7 +43,6 @@ public class JwtUtils {
             Jwts.parserBuilder().setSigningKey(getSigningKey()).build().parseClaimsJws(token);
             return true;
         } catch (JwtException | IllegalArgumentException e) {
-            // Aquí podrías loguear el error específico (expirado, firma inválida, etc.)
             return false;
         }
     }

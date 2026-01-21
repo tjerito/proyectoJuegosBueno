@@ -63,6 +63,7 @@ public class JuegoServiceTest {
         assertNotNull(resultado);
         assertEquals(2, resultado.size());
         assertEquals("Juego Reciente 1", resultado.get(0).getTitulo());
+
         // Verificamos que se llamó al método correcto del repositorio
         verify(juegoRepositorio).findTop5ByOrderByFechaSalidaDesc();
     }

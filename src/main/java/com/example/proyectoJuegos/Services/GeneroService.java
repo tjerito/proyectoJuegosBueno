@@ -12,12 +12,10 @@ public class GeneroService {
 
     private final GeneroRepositorio repo;
 
-    // Inyección por constructor: La mejor práctica para la capa de servicios
     public GeneroService(GeneroRepositorio repo) {
         this.repo = repo;
     }
 
-    // --- MÉTODOS CRUD ---
 
     public List<Genero> listarTodos() {
         return repo.findAll();
@@ -28,7 +26,6 @@ public class GeneroService {
     }
 
     public Genero guardar(Genero genero) {
-        // Podríamos añadir lógica para que el nombre siempre se guarde en mayúsculas
         if (genero.getNombre() != null) {
             genero.setNombre(genero.getNombre().toUpperCase());
         }
@@ -39,10 +36,8 @@ public class GeneroService {
         repo.deleteById(id);
     }
 
-    // --- BÚSQUEDA PERSONALIZADA ---
 
     public Optional<Genero> buscarPorNombre(String nombre) {
-        // Gracias al IgnoreCase del repositorio, no importa si buscan "rpg" o "RPG"
         return repo.findByNombreIgnoreCase(nombre);
     }
 
