@@ -57,6 +57,10 @@ public class MainView extends VerticalLayout {
 
     private final Dialog editDialog = new Dialog();
     private final Binder<Juego> binder = new Binder<>(Juego.class);
+
+    private final Dialog creationDialog = new Dialog();
+    private final Binder<Juego> creationBinder = new Binder<>(Juego.class);
+
     private Juego juegoActual;
 
     private final TextField titulo = new TextField("Título");
@@ -180,6 +184,8 @@ public class MainView extends VerticalLayout {
         card.add(img, info);
         return card;
     }
+
+
 
     private void setupDialog() {
         editDialog.setWidth("1050px");
