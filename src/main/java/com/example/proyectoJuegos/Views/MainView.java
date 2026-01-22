@@ -46,6 +46,17 @@ public class MainView extends VerticalLayout {
     private final JuegoService juegoService;
     private final GeneroService generoService;
 
+    // Diálogo y Binder específicos para CREACIÓN
+    private final Dialog creationDialog2 = new Dialog();
+    private final Binder<Juego> creationBinder2 = new Binder<>(Juego.class);
+
+    // Campos específicos para el formulario de CREACIÓN (locales para que no se mezclen)
+    private final TextField cTitulo = new TextField("Título");
+    private final DatePicker cFecha = new DatePicker("Fecha Lanzamiento");
+    private final TextField cUrl = new TextField("URL Portada");
+    private final MultiSelectComboBox<Genero> cGeneros = new MultiSelectComboBox<>("Géneros");
+    private final TextArea cDescripcion = new TextArea("Descripción");
+
     private final VerticalLayout reviewsContainer = new VerticalLayout();
     private final Image headerImage = new Image();
 
@@ -77,6 +88,7 @@ public class MainView extends VerticalLayout {
         setSizeFull();
         setupLayout();
         setupDialog();
+        setupCreationDialog();
         setupBinder();
         updateGallery();
     }
@@ -94,8 +106,12 @@ public class MainView extends VerticalLayout {
             }
         });
 
-        Button addBtn = new Button("Nuevo Juego", new Icon(VaadinIcon.PLUS), e -> openEditor(new Juego()));
-        addBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        // BUSCA ESTO EN setupLayout:
+        Button addBtn = new Button("Nuevo Juego", new Icon(VaadinIcon.PLUS), e -> {
+            // CAMBIA ESTO:
+            creationBinder2.readBean(new Juego()); // Limpia el formulario de creación
+            creationDialog2.open();               // Abre el diálogo pequeño (creationDialog)
+        });
 
         HorizontalLayout header = new HorizontalLayout(new Icon(VaadinIcon.GAMEPAD), logo, toggleDark, addBtn);
         header.setWidthFull();
@@ -254,6 +270,53 @@ public class MainView extends VerticalLayout {
         Button closeBtn = new Button("Cancelar", e -> editDialog.close());
 
         editDialog.getFooter().add(deleteBtn, closeBtn, saveBtn);
+    }
+
+    private void setupCreationDialog() {
+        creationDialog2.setHeaderTitle("Añadir Nuevo Juego");
+        creationDialog2.setWidth("550px");
+
+        cGeneros.setItems(generoService.listarTodos());
+        cGeneros.setItemLabelGenerator(Genero::getNombre);
+        cGeneros.setPlaceholder("Selecciona géneros...");
+
+        FormLayout form = new FormLayout(cTitulo, cFecha, cUrl, cGeneros, cDescripcion);
+        form.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
+        cDescripcion.setMinHeight("120px");
+
+        // USAMOS creationBinder2 en todo el método para que coincida con el botón
+        creationBinder2.forField(cGeneros)
+                .bind(
+                        juego -> new HashSet<>(juego.getGeneros()),
+                        (juego, setGeneros) -> juego.setGeneros(new ArrayList<>(setGeneros))
+                );
+
+        creationBinder2.forField(cTitulo).asRequired("Obligatorio").bind(Juego::getTitulo, Juego::setTitulo);
+        creationBinder2.forField(cFecha).asRequired("Obligatorio").bind(Juego::getFechaSalida, Juego::setFechaSalida);
+        creationBinder2.forField(cUrl).bind(Juego::getUrlImagen, Juego::setUrlImagen);
+        creationBinder2.forField(cDescripcion).bind(Juego::getDescripcion, Juego::setDescripcion);
+
+        creationDialog2.removeAll(); // Evita duplicados
+        creationDialog2.add(form);
+
+        Button saveBtn = new Button("Crear Juego", e -> {
+            Juego nuevo = new Juego();
+            // Ahora sí lee del binder correcto
+            if (creationBinder2.writeBeanIfValid(nuevo)) {
+                juegoService.guardar(nuevo);
+                updateGallery();
+                creationDialog2.close();
+                Notification.show("¡Juego añadido con éxito!").addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+            } else {
+                Notification.show("Por favor, rellena los campos obligatorios")
+                        .addThemeVariants(NotificationVariant.LUMO_ERROR);
+            }
+        });
+        saveBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+
+        Button cancelBtn = new Button("Cancelar", e -> creationDialog2.close());
+        creationDialog2.getFooter().removeAll();
+        creationDialog2.getFooter().add(cancelBtn, saveBtn);
     }
 
     private void setupBinder() {
