@@ -12,6 +12,7 @@ import java.util.Date;
 @Component
 public class JwtUtils {
 
+    //Palabra con la que se firma el token
     private final String JWT_SECRET = "esta_es_una_clave_secreta_muy_larga_para_nuestro_proyecto_de_juegos_2024";
     private final long JWT_EXPIRATION = 86400000; // 24 horas en milisegundos
 
@@ -19,6 +20,7 @@ public class JwtUtils {
         return Keys.hmacShaKeyFor(JWT_SECRET.getBytes());
     }
 
+    //se genera un token firmado cada vez que el usuario inicia sesion
     public String generarToken(String email) {
         return Jwts.builder()
                 .setSubject(email)
@@ -37,7 +39,7 @@ public class JwtUtils {
                 .getSubject();
     }
 
-    // 3. Validar si el token es correcto y no ha expirado
+    //Validar si el token es correcto y no ha expirado
     public boolean validarToken(String token) {
         try {
             Jwts.parserBuilder().setSigningKey(getSigningKey()).build().parseClaimsJws(token);

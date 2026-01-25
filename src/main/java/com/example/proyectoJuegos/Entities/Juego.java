@@ -48,8 +48,6 @@ public class Juego {
     private List<Genero> generos = new ArrayList<>();
 
     // --- AÑADE ESTO ---
-    // mappedBy = "juego": indica que en la clase Review hay un campo llamado 'juego'
-    // FetchType.EAGER: Carga las reseñas automáticamente al cargar el juego (Evita errores en Vaadin)
     @OneToMany(mappedBy = "juego", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private List<Review> reviews = new ArrayList<>();
 

@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
 
+//Esta clase expone endpoints para loguear y registrar usuarios y generar tokens
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
@@ -28,21 +29,27 @@ public class AuthController {
         this.jwtUtils = jwtUtils;
     }
 
+    //Se encargar de registrar usuarios
     @PostMapping("/registro")
     public ResponseEntity<?> registrar(@RequestBody Usuario usuario) {
+        //Se verifica si el email ya existe
         if (usuarioService.existeEmail(usuario.getEmail())) {
             return ResponseEntity.badRequest().body("Error: El email ya existe");
         }
         // Ciframos la contraseña antes de guardar
         usuario.setPassword(passwordEncoder.encode(usuario.getPassword()));
+        //Guardamos en la base de datos
         return ResponseEntity.ok(usuarioService.guardar(usuario));
     }
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
+        //Buscamos al usuario que intenta iniciar sesion por su correo
         return usuarioService.buscarPorEmail(loginRequest.getEmail())
+                //Comparamos la contraseña de la peticion con la del usuario
                 .filter(user -> passwordEncoder.matches(loginRequest.getPassword(), user.getPassword()))
                 .map(user -> {
+                    //Generamos un nuevo token para el usuario (Expira en 24H)
                     String token = jwtUtils.generarToken(user.getEmail());
                     // Devolvemos un Map con el token
                     return ResponseEntity.ok((Object) Map.of("token", token));

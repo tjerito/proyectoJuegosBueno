@@ -10,10 +10,13 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
+
 @EnableWebSecurity
 @Configuration
 public class SecurityConfig extends VaadinWebSecurity {
 
+    //Este método indica que urls son publicas
+    //Son las que pueden acceder cualquier tipo de usuario tenga o no token firmado
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(auth -> auth
@@ -23,11 +26,14 @@ public class SecurityConfig extends VaadinWebSecurity {
         );
 
 
+        //Establece la configuracion
         super.configure(http);
 
+        //Esto le dice a vaadin que alguien no está logueado lo lleve a la pestaña de login
         setLoginView(http, LoginView.class);
     }
 
+    //Este método encripta contraseñas con bcrypt
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
