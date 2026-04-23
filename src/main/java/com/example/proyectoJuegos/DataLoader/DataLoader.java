@@ -6,6 +6,7 @@ import com.example.proyectoJuegos.Enums.Role;
 import com.example.proyectoJuegos.Services.*;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
@@ -16,6 +17,7 @@ import java.util.Random;
 import java.util.Set;
 
 @Component
+@Profile("!test")
 public class DataLoader implements CommandLineRunner {
 
     private final UsuarioService usuarioService;
@@ -45,12 +47,12 @@ public class DataLoader implements CommandLineRunner {
 
         // 2. Crear Comunidad de Usuarios
         List<Usuario> comunidad = new ArrayList<>();
-        comunidad.add(crearUsuario("Fran", "fran@example.com", "1234"));
-        comunidad.add(crearUsuario("Maria", "maria@gmail.com", "1234"));
-        comunidad.add(crearUsuario("Admin", "admin@juegos.com", "admin"));
-        comunidad.add(crearUsuario("GamerPro", "gamer@pro.com", "1234"));
-        comunidad.add(crearUsuario("Alex88", "alex@mail.com", "1234"));
-        comunidad.add(crearUsuario("Elena_Pixel", "elena@pixel.com", "1234"));
+        comunidad.add(crearUsuario("Fran", "fran@example.com", "1234", Set.of(Role.USER)));
+        comunidad.add(crearUsuario("Maria", "maria@gmail.com", "1234", Set.of(Role.USER)));
+        comunidad.add(crearUsuario("Admin", "admin@juegos.com", "Admin1234!", Set.of(Role.ADMIN)));
+        comunidad.add(crearUsuario("GamerPro", "gamer@pro.com", "1234", Set.of(Role.USER)));
+        comunidad.add(crearUsuario("Alex88", "alex@mail.com", "1234", Set.of(Role.USER)));
+        comunidad.add(crearUsuario("Elena_Pixel", "elena@pixel.com", "1234", Set.of(Role.USER)));
 
         // 3. Crear el catálogo de 30 juegos
         List<Juego> juegos = new ArrayList<>();
@@ -128,12 +130,12 @@ public class DataLoader implements CommandLineRunner {
         return generoService.guardar(g);
     }
 
-    private Usuario crearUsuario(String nombre, String email, String pass) {
+    private Usuario crearUsuario(String nombre, String email, String pass, Set<Role> roles) {
         Usuario u = new Usuario();
         u.setNombre(nombre);
         u.setEmail(email);
         u.setPassword(passwordEncoder.encode(pass));
-        u.setRoles(Set.of(Role.USER));
+        u.setRoles(roles);
         u.setFechaCreacion(LocalDateTime.now());
         return usuarioService.guardar(u);
     }

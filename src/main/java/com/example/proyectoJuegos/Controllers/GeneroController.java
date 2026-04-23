@@ -5,6 +5,7 @@ import com.example.proyectoJuegos.Exceptions.ResourceNotFoundException;
 import com.example.proyectoJuegos.Services.GeneroService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -44,6 +45,7 @@ public class GeneroController {
 
     // 4. CREAR/ACTUALIZAR
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Genero> crear(@Valid @RequestBody Genero genero) {
         // @Valid ahora interceptará si el nombre está vacío o es muy corto antes de entrar aquí
         return ResponseEntity.ok(service.guardar(genero));
@@ -51,6 +53,7 @@ public class GeneroController {
 
     // 5. ELIMINAR
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> eliminar(@PathVariable Long id) {
         if (service.buscarPorId(id).isPresent()) {
             service.eliminar(id);

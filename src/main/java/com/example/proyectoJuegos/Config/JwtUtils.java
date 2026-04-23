@@ -4,6 +4,7 @@ import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
@@ -12,12 +13,13 @@ import java.util.Date;
 @Component
 public class JwtUtils {
 
-    //Palabra con la que se firma el token
-    private final String JWT_SECRET = "esta_es_una_clave_secreta_muy_larga_para_nuestro_proyecto_de_juegos_2024";
+    @Value("${jwt.secret}")
+    private String jwtSecret;
+
     private final long JWT_EXPIRATION = 86400000; // 24 horas en milisegundos
 
     private Key getSigningKey() {
-        return Keys.hmacShaKeyFor(JWT_SECRET.getBytes());
+        return Keys.hmacShaKeyFor(jwtSecret.getBytes());
     }
 
     //se genera un token firmado cada vez que el usuario inicia sesion
@@ -40,13 +42,17 @@ public class JwtUtils {
     }
 
     //Validar si el token es correcto y no ha expirado
-    public boolean validarToken(String token) {
+    public boolean validateToken(String token) {
         try {
             Jwts.parserBuilder().setSigningKey(getSigningKey()).build().parseClaimsJws(token);
             return true;
         } catch (JwtException | IllegalArgumentException e) {
             return false;
         }
+    }
+
+    public boolean validarToken(String token) {
+        return validateToken(token);
     }
 
 }

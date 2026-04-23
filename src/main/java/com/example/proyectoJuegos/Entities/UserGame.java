@@ -1,12 +1,16 @@
 package com.example.proyectoJuegos.Entities;
 
 import com.example.proyectoJuegos.Enums.Estado;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PastOrPresent;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 import java.time.LocalDate;
 
@@ -34,11 +38,19 @@ public class UserGame {
     @PastOrPresent(message = "La fecha de adición no puede ser futura")
     private LocalDate fechaAdicion;
 
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    @Schema(hidden = true)
+    @JsonIgnore
     @ManyToOne
     @NotNull(message = "Debe estar asociado a un usuario")
     @JoinColumn(name = "user_id")
     private Usuario user;
 
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    @Schema(hidden = true)
+    @JsonIgnore
     @ManyToOne
     @NotNull(message = "Debe estar asociado a un juego")
     @JoinColumn(name = "game_id")

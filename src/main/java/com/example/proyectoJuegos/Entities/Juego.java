@@ -1,8 +1,12 @@
 package com.example.proyectoJuegos.Entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import org.hibernate.validator.constraints.URL;
 
 import java.time.LocalDate;
@@ -33,6 +37,10 @@ public class Juego {
     @URL(message = "Debe ser una URL válida (ej: http://... o https://...)")
     private String urlImagen;
 
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    @Schema(hidden = true)
+    @JsonIgnore
     @OneToMany(mappedBy = "game", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UserGame> lista = new ArrayList<>();
 
@@ -48,6 +56,10 @@ public class Juego {
     private List<Genero> generos = new ArrayList<>();
 
     // --- AÑADE ESTO ---
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    @Schema(hidden = true)
+    @JsonIgnore
     @OneToMany(mappedBy = "juego", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private List<Review> reviews = new ArrayList<>();
 

@@ -1,9 +1,13 @@
 package com.example.proyectoJuegos.Entities;
 
 import com.example.proyectoJuegos.Enums.Role;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -37,9 +41,14 @@ public class Usuario implements UserDetails {
     private LocalDateTime fechaCreacion;
 
     @NotBlank(message = "La contraseña es obligatoria")
-    @Size(min = 4, message = "La contraseña debe tener al menos 4 caracteres")
+    @Size(min = 8, max = 100, message = "La contraseña debe tener entre 8 y 100 caracteres")
+    @Pattern(regexp = "^(?=.*[A-Z])(?=.*\\d).{8,}$", message = "La contraseña debe tener al menos 8 caracteres, una mayúscula y un número")
     private String password; // <--- AÑADE ESTO
 
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    @Schema(hidden = true)
+    @JsonIgnore
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UserGame> lista = new ArrayList<>();
 
@@ -69,7 +78,7 @@ public class Usuario implements UserDetails {
 
     @Override
     public String getUsername() {
-        return this.nombre;
+        return this.email;
     }// Usaremos el email como nombre de usuario para loguear
 
     @Override

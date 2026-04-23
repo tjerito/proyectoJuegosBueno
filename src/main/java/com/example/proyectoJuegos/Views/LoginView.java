@@ -5,6 +5,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.login.LoginForm;
+import com.vaadin.flow.component.login.LoginI18n;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
@@ -27,6 +28,13 @@ public class LoginView extends VerticalLayout implements BeforeEnterObserver {
         getStyle().set("background", "url('https://i.pinimg.com/736x/39/54/7b/39547b886e2c518abe91199ce75d1bd7.jpg')")
                 .set("background-size", "cover")
                 .set("background-position", "center");
+
+        LoginI18n i18n = LoginI18n.createDefault();
+        i18n.getForm().setTitle("Inicia sesión");
+        i18n.getForm().setUsername("Correo electrónico");
+        i18n.getForm().setPassword("Contraseña");
+        i18n.getForm().setSubmit("Entrar");
+        login.setI18n(i18n);
 
         login.setAction("login");
         login.setForgotPasswordButtonVisible(false);

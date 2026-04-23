@@ -2,7 +2,8 @@ package com.example.proyectoJuegos.Views;
 
 
 import com.example.proyectoJuegos.Entities.Usuario;
-import com.example.proyectoJuegos.Repositories.UsuarioRepositorio;
+import com.example.proyectoJuegos.Enums.Role;
+import com.example.proyectoJuegos.Services.UsuarioService;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -20,13 +21,14 @@ import com.vaadin.flow.server.auth.AnonymousAllowed;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 
 @Route("register")
 @PageTitle("Registro | GameHub")
 @AnonymousAllowed
 public class RegistrationView extends VerticalLayout {
 
-    public RegistrationView(UsuarioRepositorio repository, PasswordEncoder encoder) {
+    public RegistrationView(UsuarioService usuarioService, PasswordEncoder encoder) {
         setSizeFull();
         setAlignItems(Alignment.CENTER);
         setJustifyContentMode(JustifyContentMode.CENTER);
@@ -83,13 +85,18 @@ public class RegistrationView extends VerticalLayout {
                 Notification.show("Todos los campos son obligatorios").addThemeVariants(NotificationVariant.LUMO_ERROR);
                 return;
             }
+            if (usuarioService.existeEmail(email.getValue())) {
+                Notification.show("Error: El email ya existe").addThemeVariants(NotificationVariant.LUMO_ERROR);
+                return;
+            }
             try {
                 Usuario user = new Usuario();
                 user.setNombre(username.getValue());
                 user.setEmail(email.getValue());
                 user.setPassword(encoder.encode(password.getValue()));
                 user.setFechaCreacion(LocalDateTime.now());
-                repository.save(user);
+                user.setRoles(Set.of(Role.USER));
+                usuarioService.guardar(user);
                 Notification.show("¡Cuenta creada!").addThemeVariants(NotificationVariant.LUMO_SUCCESS);
                 UI.getCurrent().navigate("login");
             } catch (Exception ex) {

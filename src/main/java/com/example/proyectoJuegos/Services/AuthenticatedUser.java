@@ -22,10 +22,10 @@ public class AuthenticatedUser implements UserDetailsService {
         System.out.println("--- INTENTO DE LOGIN ---");
         System.out.println("Buscando a: " + username);
 
-        Usuario usuario = usuarioRepositorio.findByNombre(username)
+        Usuario usuario = usuarioRepositorio.findByEmail(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado: " + username));
 
-        System.out.println("Usuario encontrado en BD: " + usuario.getNombre());
+        System.out.println("Usuario encontrado en BD: " + usuario.getEmail());
         System.out.println("Password en BD (debe empezar por $2a$): " + usuario.getPassword());
 
         return usuario;

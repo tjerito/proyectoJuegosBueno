@@ -6,6 +6,7 @@ import com.example.proyectoJuegos.Services.JuegoService;
 import jakarta.validation.Valid;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -61,6 +62,7 @@ public class JuegoController {
 
     // 6. GUARDAR
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Juego> crear(@Valid @RequestBody Juego juego) {
         // Añadimos @Valid para que se ejecuten las reglas (@NotBlank, @Size, etc.)
         // Cambiamos el retorno a ResponseEntity para ser más profesionales
