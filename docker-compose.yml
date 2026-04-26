@@ -1,0 +1,13 @@
+services:
+  proyecto-juegos:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: proyecto-juegos
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+    volumes:
+      - ./data:/app/data
+
